@@ -74,25 +74,33 @@ double MCTS_DRL::simulate(Node* p)
 
 int MCTS_DRL::decide(int iteration, long tlimit)
 {
+    static std::default_random_engine def_gen(std::chrono::system_clock::now().time_since_epoch().count());
+    static std::uniform_real_distribution<double> dist(0, 1);
+    static auto dice = std::bind(dist, def_gen);
+
     clock_t ts = clock();
     while(iteration-- && (tlimit == 0 || clock() - ts < tlimit))
     {
         iterate();
     }
-    int action = -1;
-    double maxi = -100; 
+    int idx[64];
+    double prob[64];
+    int ptr = 0;
     for(auto i: root->childs)
     {
         Node *p = i.second.first;
         //find node with best value
         //as the visit count is relatively small
-        if(p->reward * root->status.currentPlayer() / p->count > maxi)
-        {
-            maxi = p->reward * root->status.currentPlayer() / p->count;
-            action = i.first;
-        }
+        idx[ptr] = i.first;
+        prob[ptr++] = (double)p->count / root->count;
     }
-    return action;
+    double rd = dice();
+    for(int i = 0; i < ptr; i++)
+    {
+        if(prob[i] <= rd) return idx[i];
+        rd -= prob[i];
+    }
+    return idx[ptr-1];
 }
 
 void MCTS_DRL::saveRoot(GameHistory& hist)

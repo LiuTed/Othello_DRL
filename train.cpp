@@ -30,7 +30,7 @@ int main(int argc, char **argv)
         //self-play
         while(!mcts.game().finish())
         {
-            int act = mcts.decide(1000, CLOCKS_PER_SEC * 3);
+            int act = mcts.decide(1000, CLOCKS_PER_SEC * 2);
             mcts.saveRoot(history[front++ % bufSize]);
             mcts.act(act);
         }
