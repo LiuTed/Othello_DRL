@@ -1,0 +1,4 @@
+obj
+*.pb
+ckpt
+othello*
